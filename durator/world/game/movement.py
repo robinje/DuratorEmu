@@ -2,9 +2,8 @@ import io
 from enum import Enum
 from struct import Struct
 
-from pyshgck.bin import read_struct
-
 from durator.world.game.position import Position
+from lib.utilities import read_struct
 
 
 class MovementFlags(Enum):

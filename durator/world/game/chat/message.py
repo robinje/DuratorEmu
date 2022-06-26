@@ -4,11 +4,10 @@ import io
 from enum import Enum
 from struct import Struct
 
-from pyshgck.bin import read_cstring, read_struct
-
 from durator.world.game.chat.language import Language
 from durator.world.opcodes import OpCode
 from durator.world.world_packet import WorldPacket
+from lib.utilities import read_cstring, read_struct
 
 
 class ChatMessageType(Enum):
