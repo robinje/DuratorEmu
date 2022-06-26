@@ -1,51 +1,52 @@
-from enum import Enum
 import io
+from enum import Enum
 from struct import Struct
+
+from pyshgck.bin import read_cstring, read_struct
 
 from durator.common.account.managers import AccountSessionManager
 from durator.common.crypto.session_cipher import SessionCipher
 from durator.common.crypto.sha1 import sha1
+from durator.common.log import LOG
 from durator.config import CONFIG
 from durator.db.database import db_connection
-from durator.world.world_connection_state import WorldConnectionState
 from durator.world.opcodes import OpCode
+from durator.world.world_connection_state import WorldConnectionState
 from durator.world.world_packet import WorldPacket
-from pyshgck.bin import read_cstring, read_struct
-from durator.common.log import LOG
 
 
 class AuthSessionResponseCode(Enum):
 
-    AUTH_OK                     = 0x0C
-    AUTH_FAILED                 = 0x0D
-    AUTH_REJECT                 = 0x0E
-    AUTH_BAD_SERVER_PROOF       = 0x0F
-    AUTH_UNAVAILABLE            = 0x10
-    AUTH_SYSTEM_ERROR           = 0x11
-    AUTH_BILLING_ERROR          = 0x12
-    AUTH_BILLING_EXPIRED        = 0x13
-    AUTH_VERSION_MISMATCH       = 0x14
-    AUTH_UNKNOWN_ACCOUNT        = 0x15
-    AUTH_INCORRECT_PASSWORD     = 0x16
-    AUTH_SESSION_EXPIRED        = 0x17
-    AUTH_SERVER_SHUTTING_DOWN   = 0x18
-    AUTH_ALREADY_LOGGING_IN     = 0x19
+    AUTH_OK = 0x0C
+    AUTH_FAILED = 0x0D
+    AUTH_REJECT = 0x0E
+    AUTH_BAD_SERVER_PROOF = 0x0F
+    AUTH_UNAVAILABLE = 0x10
+    AUTH_SYSTEM_ERROR = 0x11
+    AUTH_BILLING_ERROR = 0x12
+    AUTH_BILLING_EXPIRED = 0x13
+    AUTH_VERSION_MISMATCH = 0x14
+    AUTH_UNKNOWN_ACCOUNT = 0x15
+    AUTH_INCORRECT_PASSWORD = 0x16
+    AUTH_SESSION_EXPIRED = 0x17
+    AUTH_SERVER_SHUTTING_DOWN = 0x18
+    AUTH_ALREADY_LOGGING_IN = 0x19
     AUTH_LOGIN_SERVER_NOT_FOUND = 0x1A
-    AUTH_WAIT_QUEUE             = 0x1B
-    AUTH_BANNED                 = 0x1C
-    AUTH_ALREADY_ONLINE         = 0x1D
-    AUTH_NO_TIME                = 0x1E
-    AUTH_DB_BUSY                = 0x1F
-    AUTH_SUSPENDED              = 0x20
-    AUTH_PARENTAL_CONTROL       = 0x21
+    AUTH_WAIT_QUEUE = 0x1B
+    AUTH_BANNED = 0x1C
+    AUTH_ALREADY_ONLINE = 0x1D
+    AUTH_NO_TIME = 0x1E
+    AUTH_DB_BUSY = 0x1F
+    AUTH_SUSPENDED = 0x20
+    AUTH_PARENTAL_CONTROL = 0x21
 
 
-class AuthSessionHandler(object):
-    """ Handle the session request sent by the client and initialise the session
-    cipher in the process. """
+class AuthSessionHandler:
+    """Handle the session request sent by the client and initialise the session
+    cipher in the process."""
 
-    PACKET_PART1_BIN  = Struct("<2I")
-    PACKET_PART2_BIN  = Struct("<I20s")
+    PACKET_PART1_BIN = Struct("<2I")
+    PACKET_PART2_BIN = Struct("<I20s")
     RESPONSE_SUCC_BIN = Struct("<BIBI")
     RESPONSE_FAIL_BIN = Struct("<B")
 
@@ -75,9 +76,7 @@ class AuthSessionHandler(object):
         self._setup_encryption()
 
         if self.build != int(CONFIG["general"]["build"]):
-            LOG.warning("Wrong build tried to auth to world server: {}".format(
-                str(self.build)
-            ))
+            LOG.warning("Wrong build tried to auth to world server: {}".format(str(self.build)))
             error_code = AuthSessionResponseCode.AUTH_VERSION_MISMATCH
             response = self._get_failure_packet(error_code)
             return self.conn.MAIN_ERROR_STATE, response
@@ -122,23 +121,22 @@ class AuthSessionHandler(object):
     def _generate_server_hash(self):
         auth_seed = self.conn.shared_data["auth_seed"]
         del self.conn.shared_data["auth_seed"]
-        to_hash = ( self.account_name.encode("ascii") +
-                    bytes(4) +
-                    int.to_bytes(self.client_seed, 4, "little") +
-                    int.to_bytes(auth_seed, 4, "little") +
-                    self.session_key )
+        to_hash = (
+            self.account_name.encode("ascii")
+            + bytes(4)
+            + int.to_bytes(self.client_seed, 4, "little")
+            + int.to_bytes(auth_seed, 4, "little")
+            + self.session_key
+        )
         self.server_hash = sha1(to_hash)
 
     def _setup_encryption(self):
-        """ Set up the session cipher and return True on success. """
+        """Set up the session cipher and return True on success."""
         self.conn.set_session_cipher(SessionCipher(self.session_key))
 
     def _get_success_packet(self):
         data = self.RESPONSE_SUCC_BIN.pack(
-            AuthSessionResponseCode.AUTH_OK.value,
-            0,  # BillingTimeRemaining
-            0,  # BillingPlanFlags
-            0   # BillingTimeRested
+            AuthSessionResponseCode.AUTH_OK.value, 0, 0, 0  # BillingTimeRemaining  # BillingPlanFlags  # BillingTimeRested
         )
         return WorldPacket(OpCode.SMSG_AUTH_RESPONSE, data)
 

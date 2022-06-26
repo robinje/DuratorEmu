@@ -1,8 +1,8 @@
 from struct import Struct
 
 
-class ZoneUpdateHandler(object):
-    """ Handle all player movement opcodes. """
+class ZoneUpdateHandler:
+    """Handle all player movement opcodes."""
 
     PACKET_BIN = Struct("<I")
 

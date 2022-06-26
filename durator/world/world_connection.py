@@ -3,6 +3,7 @@ import queue
 from struct import Struct
 
 from durator.common.account.managers import AccountSessionManager
+from durator.common.log import LOG
 from durator.common.networking.connection_automaton import ConnectionAutomaton
 from durator.config import CONFIG
 from durator.world.handlers.ack.move_worldport import MoveWorldportAckHandler
@@ -25,11 +26,10 @@ from durator.world.handlers.ping import PingHandler
 from durator.world.opcodes import OpCode
 from durator.world.world_connection_state import WorldConnectionState
 from durator.world.world_packet import WorldPacket, WorldPacketReceiver
-from durator.common.log import LOG
 
 
 class WorldConnection(ConnectionAutomaton):
-    """ Handle the communication between a client and the world server.
+    """Handle the communication between a client and the world server.
 
     Attributes:
     - world_packet_receiver: object that helps with world packet reception
@@ -48,60 +48,58 @@ class WorldConnection(ConnectionAutomaton):
     AUTH_CHALLENGE_BIN = Struct("<I")
 
     LEGAL_OPS = {
-        WorldConnectionState.INIT:     [ OpCode.CMSG_AUTH_SESSION ],
-        WorldConnectionState.ERROR:    [ ],
-        WorldConnectionState.AUTH_OK:  [ OpCode.CMSG_CHAR_ENUM
-                                       , OpCode.CMSG_CHAR_CREATE
-                                       , OpCode.CMSG_CHAR_DELETE
-                                       , OpCode.CMSG_PLAYER_LOGIN ]
+        WorldConnectionState.INIT: [OpCode.CMSG_AUTH_SESSION],
+        WorldConnectionState.ERROR: [],
+        WorldConnectionState.AUTH_OK: [
+            OpCode.CMSG_CHAR_ENUM,
+            OpCode.CMSG_CHAR_CREATE,
+            OpCode.CMSG_CHAR_DELETE,
+            OpCode.CMSG_PLAYER_LOGIN,
+        ],
     }
 
-    UNMANAGED_OPS    = [
-        OpCode.CMSG_PING
-    ]
-    UNMANAGED_STATES = [
-        WorldConnectionState.IN_WORLD
-    ]
+    UNMANAGED_OPS = [OpCode.CMSG_PING]
+    UNMANAGED_STATES = [WorldConnectionState.IN_WORLD]
 
     DEFAULT_HANDLER = NopHandler
-    OP_HANDLERS     = {
-        OpCode.CMSG_CHAR_CREATE:            CharCreateHandler,
-        OpCode.CMSG_CHAR_ENUM:              CharEnumHandler,
-        OpCode.CMSG_CHAR_DELETE:            CharDeleteHandler,
-        OpCode.CMSG_PLAYER_LOGIN:           PlayerLoginHandler,
-        OpCode.CMSG_LOGOUT_REQUEST:         LogoutRequestHandler,
-        OpCode.CMSG_NAME_QUERY:             NameQueryHandler,
-        OpCode.CMSG_MESSAGECHAT:            MessageHandler,
-        OpCode.CMSG_JOIN_CHANNEL:           JoinChannelHandler,
-        OpCode.CMSG_LEAVE_CHANNEL:          LeaveChannelHandler,
-        OpCode.MSG_MOVE_START_FORWARD:      MovementHandler,
-        OpCode.MSG_MOVE_START_BACKWARD:     MovementHandler,
-        OpCode.MSG_MOVE_STOP:               MovementHandler,
-        OpCode.MSG_MOVE_START_STRAFE_LEFT:  MovementHandler,
+    OP_HANDLERS = {
+        OpCode.CMSG_CHAR_CREATE: CharCreateHandler,
+        OpCode.CMSG_CHAR_ENUM: CharEnumHandler,
+        OpCode.CMSG_CHAR_DELETE: CharDeleteHandler,
+        OpCode.CMSG_PLAYER_LOGIN: PlayerLoginHandler,
+        OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler,
+        OpCode.CMSG_NAME_QUERY: NameQueryHandler,
+        OpCode.CMSG_MESSAGECHAT: MessageHandler,
+        OpCode.CMSG_JOIN_CHANNEL: JoinChannelHandler,
+        OpCode.CMSG_LEAVE_CHANNEL: LeaveChannelHandler,
+        OpCode.MSG_MOVE_START_FORWARD: MovementHandler,
+        OpCode.MSG_MOVE_START_BACKWARD: MovementHandler,
+        OpCode.MSG_MOVE_STOP: MovementHandler,
+        OpCode.MSG_MOVE_START_STRAFE_LEFT: MovementHandler,
         OpCode.MSG_MOVE_START_STRAFE_RIGHT: MovementHandler,
-        OpCode.MSG_MOVE_STOP_STRAFE:        MovementHandler,
-        OpCode.MSG_MOVE_JUMP:               MovementHandler,
-        OpCode.MSG_MOVE_START_TURN_LEFT:    MovementHandler,
-        OpCode.MSG_MOVE_START_TURN_RIGHT:   MovementHandler,
-        OpCode.MSG_MOVE_STOP_TURN:          MovementHandler,
-        OpCode.MSG_MOVE_START_PITCH_UP:     MovementHandler,
-        OpCode.MSG_MOVE_START_PITCH_DOWN:   MovementHandler,
-        OpCode.MSG_MOVE_STOP_PITCH:         MovementHandler,
-        OpCode.MSG_MOVE_SET_RUN_MODE:       MovementHandler,
-        OpCode.MSG_MOVE_SET_WALK_MODE:      MovementHandler,
-        OpCode.MSG_MOVE_FALL_LAND:          MovementHandler,
-        OpCode.MSG_MOVE_SET_FACING:         MovementHandler,
-        OpCode.MSG_MOVE_WORLDPORT_ACK:      MoveWorldportAckHandler,
-        OpCode.MSG_MOVE_HEARTBEAT:          MovementHandler,
-        OpCode.CMSG_QUERY_TIME:             TimeQueryHandler,
-        OpCode.CMSG_PING:                   PingHandler,
-        OpCode.CMSG_AUTH_SESSION:           AuthSessionHandler,
-        OpCode.CMSG_ZONEUPDATE:             ZoneUpdateHandler,
-        OpCode.CMSG_UPDATE_ACCOUNT_DATA:    UpdateAccountDataHandler
+        OpCode.MSG_MOVE_STOP_STRAFE: MovementHandler,
+        OpCode.MSG_MOVE_JUMP: MovementHandler,
+        OpCode.MSG_MOVE_START_TURN_LEFT: MovementHandler,
+        OpCode.MSG_MOVE_START_TURN_RIGHT: MovementHandler,
+        OpCode.MSG_MOVE_STOP_TURN: MovementHandler,
+        OpCode.MSG_MOVE_START_PITCH_UP: MovementHandler,
+        OpCode.MSG_MOVE_START_PITCH_DOWN: MovementHandler,
+        OpCode.MSG_MOVE_STOP_PITCH: MovementHandler,
+        OpCode.MSG_MOVE_SET_RUN_MODE: MovementHandler,
+        OpCode.MSG_MOVE_SET_WALK_MODE: MovementHandler,
+        OpCode.MSG_MOVE_FALL_LAND: MovementHandler,
+        OpCode.MSG_MOVE_SET_FACING: MovementHandler,
+        OpCode.MSG_MOVE_WORLDPORT_ACK: MoveWorldportAckHandler,
+        OpCode.MSG_MOVE_HEARTBEAT: MovementHandler,
+        OpCode.CMSG_QUERY_TIME: TimeQueryHandler,
+        OpCode.CMSG_PING: PingHandler,
+        OpCode.CMSG_AUTH_SESSION: AuthSessionHandler,
+        OpCode.CMSG_ZONEUPDATE: ZoneUpdateHandler,
+        OpCode.CMSG_UPDATE_ACCOUNT_DATA: UpdateAccountDataHandler,
     }
 
-    INIT_STATE       = WorldConnectionState.INIT
-    END_STATES       = [ WorldConnectionState.ERROR ]
+    INIT_STATE = WorldConnectionState.INIT
+    END_STATES = [WorldConnectionState.ERROR]
     MAIN_ERROR_STATE = WorldConnectionState.ERROR
 
     RECV_TIMEOUT = float(CONFIG["world"]["recv_timeout"])
@@ -154,7 +152,7 @@ class WorldConnection(ConnectionAutomaton):
     def _actions_at_loop_begin(self):
         while not self.outgoing_queue.empty():
             try:
-                packet = self.outgoing_queue.get(block = False)
+                packet = self.outgoing_queue.get(block=False)
             except queue.Empty:
                 return
             self.send_packet(packet)
@@ -170,12 +168,12 @@ class WorldConnection(ConnectionAutomaton):
             self.server.world_connections.remove(self)
 
     def set_player(self, char_data):
-        """ Ask the ObjectManager to create a Player object with the char_data
-        from the database. """
+        """Ask the ObjectManager to create a Player object with the char_data
+        from the database."""
         self.player = self.server.object_manager.add_player(char_data)
 
     def unset_player(self):
-        """ Transfer the Player data back to the database, after a logout or
-        after the connection has been closed. """
+        """Transfer the Player data back to the database, after a logout or
+        after the connection has been closed."""
         self.server.object_manager.remove_player(self.player.guid)
         self.player = None

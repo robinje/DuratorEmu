@@ -1,23 +1,24 @@
-from enum import Enum
 import io
+from enum import Enum
 from struct import Struct
 
-from durator.world.game.position import Position
 from pyshgck.bin import read_struct
+
+from durator.world.game.position import Position
 
 
 class MovementFlags(Enum):
-    """ Flags defining the MovementBlock structure. Need double checking. """
+    """Flags defining the MovementBlock structure. Need double checking."""
 
-    FORWARD          = 1 << 0   # 0x00000001
-    BACKWARD         = 1 << 1   # 0x00000002
-    STRAFE_LEFT      = 1 << 2   # 0x00000004
-    STRAFE_RIGHT     = 1 << 3   # 0x00000008
-    TURN_LEFT        = 1 << 4   # 0x00000010
-    TURN_RIGHT       = 1 << 5   # 0x00000020
-    IS_FALLING       = 1 << 13  # 0x00002000
-    IS_SWIMMING      = 1 << 21  # 0x00200000
-    ON_TRANSPORT     = 1 << 25  # 0x02000000
+    FORWARD = 1 << 0  # 0x00000001
+    BACKWARD = 1 << 1  # 0x00000002
+    STRAFE_LEFT = 1 << 2  # 0x00000004
+    STRAFE_RIGHT = 1 << 3  # 0x00000008
+    TURN_LEFT = 1 << 4  # 0x00000010
+    TURN_RIGHT = 1 << 5  # 0x00000020
+    IS_FALLING = 1 << 13  # 0x00002000
+    IS_SWIMMING = 1 << 21  # 0x00200000
+    ON_TRANSPORT = 1 << 25  # 0x02000000
     SPLINE_ELEVATION = 1 << 26  # 0x04000000
 
     # Values from 1.12 (or 3.3.5?) left here for documentation
@@ -37,7 +38,7 @@ class MovementFlags(Enum):
     # HOVER            = 1 << 30
 
 
-class Movement(object):
+class Movement:
 
     # - uint32      flags
     # - int32       unk
@@ -56,9 +57,9 @@ class Movement(object):
     #     if flags & 0x04000000 (is on spline elevation)
     #     - float       unk
 
-    HEADER_BIN           = Struct("<2I")
+    HEADER_BIN = Struct("<2I")
     TRANSPORT_HEADER_BIN = Struct("<Q")
-    SWIMMING_BIN         = Struct("<f")
+    SWIMMING_BIN = Struct("<f")
     SPLINE_ELEVATION_BIN = Struct("<f")
 
     def __init__(self):
@@ -119,7 +120,7 @@ class Movement(object):
         return data
 
 
-class JumpData(object):
+class JumpData:
 
     BIN = Struct("<I4f")
 
@@ -138,10 +139,4 @@ class JumpData(object):
         return jump
 
     def to_bytes(self):
-        return self.BIN.pack(
-            self.time,
-            self.velocity,
-            self.sin,
-            self.cos,
-            self.xy_speed
-        )
+        return self.BIN.pack(self.time, self.velocity, self.sin, self.cos, self.xy_speed)

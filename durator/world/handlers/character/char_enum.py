@@ -6,7 +6,7 @@ from durator.world.opcodes import OpCode
 from durator.world.world_packet import WorldPacket
 
 
-class CharEnumHandler(object):
+class CharEnumHandler:
 
     # ulong GUID, string name, uint8 race/class/gender,
     # uint8 skin/face/hairstyle/haircolor/facialhair, uint8 level,
@@ -35,11 +35,11 @@ class CharEnumHandler(object):
         return None, packet
 
     def _get_character_data(self, character):
-        """ Return the character data needed for this character. It includes a
+        """Return the character data needed for this character. It includes a
         lot of general information, one equipment entry per not-bag item, and
-        add the first 16-slot bag after that, because why not. """
+        add the first 16-slot bag after that, because why not."""
         name_bytes = character.name.encode("utf8") + b"\x00"
-        char_struct_fmt = self.CHAR_FMT.format(name_len = len(name_bytes))
+        char_struct_fmt = self.CHAR_FMT.format(name_len=len(name_bytes))
         char_struct = Struct(char_struct_fmt)
         char_data = char_struct.pack(
             character.guid,
@@ -63,12 +63,11 @@ class CharEnumHandler(object):
             0,  # first login
             0,  # pet display
             0,  # pet level
-            0   # pet family
+            0,  # pet family
         )
 
         char_equipments = []
-        for _ in range( CharacterEquipSlot.HEAD.value
-                      , CharacterEquipSlot.TABARD.value + 1 ):
+        for _ in range(CharacterEquipSlot.HEAD.value, CharacterEquipSlot.TABARD.value + 1):
             equipment_data = self.CHAR_EQUIPMENT_BIN.pack(0, 0)
             char_equipments.append(equipment_data)
         first_bag_data = self.CHAR_EQUIPMENT_BIN.pack(0, 0)

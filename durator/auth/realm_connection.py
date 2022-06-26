@@ -4,9 +4,9 @@ import time
 from pyshgck.bin import read_cstring
 
 
-class RealmConnection(object):
-    """ Handle the connection with a world server to update the local login
-    server realm state list. """
+class RealmConnection:
+    """Handle the connection with a world server to update the local login
+    server realm state list."""
 
     def __init__(self, server, connection, address):
         self.server = server
@@ -45,13 +45,13 @@ class RealmConnection(object):
         return data
 
     def _parse_realm_info_packet(self, packet):
-        """ Parse that realm packet and grab the realm name. """
+        """Parse that realm packet and grab the realm name."""
         packet_io = io.BytesIO(packet)
         packet_io.seek(5)  # skip some data, we only grab name for now
         self.realm_name = read_cstring(packet_io).decode("ascii")
 
     def _get_realm_state(self, packet):
-        realm_state = { "packet": packet, "last_update": time.time() }
+        realm_state = {"packet": packet, "last_update": time.time()}
         return realm_state
 
     def _register_realm_state(self, realm_state):

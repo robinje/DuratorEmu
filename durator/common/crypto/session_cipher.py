@@ -1,6 +1,5 @@
-
-class SessionCipher(object):
-    """ Handle the encryption and decryption of world packet headers. """
+class SessionCipher:
+    """Handle the encryption and decryption of world packet headers."""
 
     ENCRYPT_HEADER_SIZE = 4
     DECRYPT_HEADER_SIZE = 6
@@ -22,10 +21,10 @@ class SessionCipher(object):
             encrypted_header[index] = self.send_j = enc
             self.send_i = (self.send_i + 1) % len(self.session_key)
 
-        return bytes(encrypted_header) + data[self.ENCRYPT_HEADER_SIZE:]
+        return bytes(encrypted_header) + data[self.ENCRYPT_HEADER_SIZE :]
 
     def decrypt(self, data):
-        """ Return the decrypted data byte buffer. """
+        """Return the decrypted data byte buffer."""
         assert len(data) >= self.DECRYPT_HEADER_SIZE
         decrypted_header = [0] * self.DECRYPT_HEADER_SIZE
 
@@ -36,4 +35,4 @@ class SessionCipher(object):
             self.recv_j = data[index]
             self.recv_i = (self.recv_i + 1) % len(self.session_key)
 
-        return bytes(decrypted_header) + data[self.DECRYPT_HEADER_SIZE:]
+        return bytes(decrypted_header) + data[self.DECRYPT_HEADER_SIZE :]

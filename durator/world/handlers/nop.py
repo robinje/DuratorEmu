@@ -1,6 +1,5 @@
-
-class NopHandler(object):
-    """ Acknowledge but ignore that packet. """
+class NopHandler:
+    """Acknowledge but ignore that packet."""
 
     def __init__(self, connection, packet):
         self.conn = connection

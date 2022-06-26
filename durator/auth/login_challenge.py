@@ -9,11 +9,11 @@ from durator.common.account.managers import AccountManager
 from durator.common.log import LOG
 
 
-class LoginChallenge(object):
-    """ Process a challenge request and answer with the challenge data. """
+class LoginChallenge:
+    """Process a challenge request and answer with the challenge data."""
 
-    HEADER_BIN        = Struct("<BH")
-    CONTENT_BIN       = Struct("<4s3BH4s4s4sI4BB")
+    HEADER_BIN = Struct("<BH")
+    CONTENT_BIN = Struct("<4s3BH4s4s4sI4BB")
     RESPONSE_SUCC_BIN = Struct("<3B32sB1sB32s32s16s")
     RESPONSE_FAIL_BIN = Struct("<3B")
 
@@ -37,8 +37,8 @@ class LoginChallenge(object):
         self.account_name = ""
 
     def process(self):
-        """ Process the challenge packet: parse its data and check whether that
-        account name can log. """
+        """Process the challenge packet: parse its data and check whether that
+        account name can log."""
         self._parse_packet(self.packet)
         LOG.debug("Login: account " + self.account_name)
         return self._process_account()
@@ -49,7 +49,7 @@ class LoginChallenge(object):
 
     def _parse_packet_header(self, packet):
         end_offset = self.HEADER_BIN.size
-        header = packet[ 0 : end_offset ]
+        header = packet[0:end_offset]
         header_data = self.HEADER_BIN.unpack(header)
         self.unk_code = header_data[0]
         self.size = header_data[1]
@@ -57,7 +57,7 @@ class LoginChallenge(object):
     def _parse_packet_content(self, packet):
         offset = self.HEADER_BIN.size
         end_offset = offset + self.CONTENT_BIN.size
-        content = packet[ offset : end_offset ]
+        content = packet[offset:end_offset]
         content_data = self.CONTENT_BIN.unpack(content)
 
         self.game_name = _decode_chall_cstring(content_data[0])
@@ -72,11 +72,11 @@ class LoginChallenge(object):
         self.ip_address = content_data[9:13]
         self.account_name_size = content_data[13]
 
-        account_name = packet[ end_offset : end_offset+self.account_name_size ]
+        account_name = packet[end_offset : end_offset + self.account_name_size]
         self.account_name = account_name.decode("ascii")
 
     def _process_account(self):
-        """ Check if the account received can log to the server. """
+        """Check if the account received can log to the server."""
         account = AccountManager.get_account(self.account_name)
         if account is not None and account.is_valid():
             self.conn.account = account
@@ -84,14 +84,12 @@ class LoginChallenge(object):
             response = self._get_success_response()
             return LoginConnectionState.SENT_CHALL, response
         else:
-            LOG.warning("Invalid account {} tried to login".format(
-                self.account_name
-            ))
+            LOG.warning("Invalid account {} tried to login".format(self.account_name))
             response = self._get_failure_response(account)
             return LoginConnectionState.CLOSED, response
 
     def _get_success_response(self):
-        """ Return a success packet with appropriate SRP data. """
+        """Return a success packet with appropriate SRP data."""
         server_eph = int.to_bytes(self.conn.srp.server_ephemeral, 32, "little")
         salt = self.conn.account.srp_salt_as_bytes
         generator = int.to_bytes(Srp.GENERATOR, 1, "little")
@@ -107,30 +105,22 @@ class LoginChallenge(object):
             len(modulus),
             modulus,
             salt,
-            os.urandom(16)
+            os.urandom(16),
         )
         return response
 
-    ERROR_CODES = {
-        AccountStatus.SUSPENDED: LoginResult.FAIL_SUSPENDED,
-        AccountStatus.BANNED:    LoginResult.FAIL_BANNED
-    }
+    ERROR_CODES = {AccountStatus.SUSPENDED: LoginResult.FAIL_SUSPENDED, AccountStatus.BANNED: LoginResult.FAIL_BANNED}
 
     def _get_failure_response(self, account):
-        """ Return a failure packet with appropriate error code. """
+        """Return a failure packet with appropriate error code."""
         if account is None:
             fail_code = LoginResult.FAIL_1
         else:
             account_status = AccountStatus(account.status)
-            fail_code = ( self.ERROR_CODES.get(account_status)
-                          or LoginResult.FAIL_1 )
-        response = self.RESPONSE_FAIL_BIN.pack(
-            LoginOpCode.LOGIN_CHALL.value,
-            0,
-            fail_code.value
-        )
+            fail_code = self.ERROR_CODES.get(account_status) or LoginResult.FAIL_1
+        response = self.RESPONSE_FAIL_BIN.pack(LoginOpCode.LOGIN_CHALL.value, 0, fail_code.value)
         return response
 
 
-def _decode_chall_cstring(cstring, encoding = "ascii"):
+def _decode_chall_cstring(cstring, encoding="ascii"):
     return cstring.decode(encoding).strip("\x00")[::-1]

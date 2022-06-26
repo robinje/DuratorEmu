@@ -1,59 +1,60 @@
 """ {C,S}MSG_MESSAGECHAT structures """
 
-from enum import Enum
 import io
+from enum import Enum
 from struct import Struct
+
+from pyshgck.bin import read_cstring, read_struct
 
 from durator.world.game.chat.language import Language
 from durator.world.opcodes import OpCode
 from durator.world.world_packet import WorldPacket
-from pyshgck.bin import read_cstring, read_struct
 
 
 class ChatMessageType(Enum):
 
-    SAY                    = 0x00
-    PARTY                  = 0x01
-    RAID                   = 0x02
-    GUILD                  = 0x03
-    OFFICER                = 0x04
-    YELL                   = 0x05
-    WHISPER                = 0x06
-    WHISPER_INFORM         = 0x07
-    EMOTE                  = 0x08
-    TEXT_EMOTE             = 0x09
+    SAY = 0x00
+    PARTY = 0x01
+    RAID = 0x02
+    GUILD = 0x03
+    OFFICER = 0x04
+    YELL = 0x05
+    WHISPER = 0x06
+    WHISPER_INFORM = 0x07
+    EMOTE = 0x08
+    TEXT_EMOTE = 0x09
 
-    SYSTEM                 = 0x0A
+    SYSTEM = 0x0A
 
-    MONSTER_SAY            = 0x0B
-    MONSTER_YELL           = 0x0C
-    MONSTER_EMOTE          = 0x0D
-    MONSTER_WHISPER        = 0x1A
+    MONSTER_SAY = 0x0B
+    MONSTER_YELL = 0x0C
+    MONSTER_EMOTE = 0x0D
+    MONSTER_WHISPER = 0x1A
 
-    CHANNEL                = 0x0E
-    CHANNEL_JOIN           = 0x0F
-    CHANNEL_LEAVE          = 0x10
-    CHANNEL_LIST           = 0x11
-    CHANNEL_NOTICE         = 0x12
-    CHANNEL_NOTICE_USER    = 0x13
+    CHANNEL = 0x0E
+    CHANNEL_JOIN = 0x0F
+    CHANNEL_LEAVE = 0x10
+    CHANNEL_LIST = 0x11
+    CHANNEL_NOTICE = 0x12
+    CHANNEL_NOTICE_USER = 0x13
 
-    AFK                    = 0x14
-    DND                    = 0x15
-    IGNORED                = 0x16
+    AFK = 0x14
+    DND = 0x15
+    IGNORED = 0x16
 
-    SKILL                  = 0x17
-    LOOT                   = 0x18
+    SKILL = 0x17
+    LOOT = 0x18
 
 
 class ChatMessageTag(Enum):
 
     NONE = 0
-    AFK  = 1
-    DND  = 2
-    GM   = 3
+    AFK = 1
+    DND = 2
+    GM = 3
 
 
-class ClientChatMessage(object):
+class ClientChatMessage:
 
     # - uint32    type
     # - uint32    language
@@ -89,7 +90,7 @@ class ClientChatMessage(object):
         return message
 
 
-class ServerChatMessage(object):
+class ServerChatMessage:
 
     # From the client SMSG_MESSAGECHAT handler, discarding some flags.
     # - uint8     type
@@ -102,7 +103,7 @@ class ServerChatMessage(object):
     # - string    message (size above)
     # - uint8     tag
 
-    HEADER_BIN      = Struct("<BI")
+    HEADER_BIN = Struct("<BI")
     MIDDLE_PART_BIN = Struct("<QI")
 
     def __init__(self):
@@ -123,10 +124,7 @@ class ServerChatMessage(object):
 
     def to_bytes(self):
         data = b""
-        data += self.HEADER_BIN.pack(
-            self.message_type.value,
-            self.language.value
-        )
+        data += self.HEADER_BIN.pack(self.message_type.value, self.language.value)
 
         if self.message_type == ChatMessageType.CHANNEL:
             data += self.channel_name.encode("utf8") + b"\x00"
@@ -134,10 +132,7 @@ class ServerChatMessage(object):
         content_bytes = self.content.encode("utf8") + b"\x00"
         self.content_size = len(content_bytes)
 
-        data += self.MIDDLE_PART_BIN.pack(
-            self.sender_guid,
-            self.content_size
-        )
+        data += self.MIDDLE_PART_BIN.pack(self.sender_guid, self.content_size)
         data += content_bytes
         data += int.to_bytes(self.tag.value, 1, "little")
 

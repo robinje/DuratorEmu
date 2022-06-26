@@ -3,37 +3,22 @@ import getpass
 from peewee import OperationalError
 
 from durator.common.account.managers import AccountManager
+from durator.common.log import LOG
 from durator.db.database import DB, db_connection
 from durator.db.models import MODELS
-from durator.common.log import LOG
 
 
-class DatabaseClient(object):
-    """ Command-line front-end to the database. """
+class DatabaseClient:
+    """Command-line front-end to the database."""
 
     def __init__(self):
         self.shutdown_flag = False
         self.shell_commands = {
-            "help": {
-                "help": "print this help",
-                "func": self._shell_print_commands
-            },
-            "quit": {
-                "help": "quit the client",
-                "func": self._shell_quit
-            },
-            "install": {
-                "help": "create database and tables",
-                "func": self._install_db
-            },
-            "test": {
-                "help": "test database availability",
-                "func": self._test_db
-            },
-            "account": {
-                "help": "create a new player account",
-                "func": self._new_account
-            }
+            "help": {"help": "print this help", "func": self._shell_print_commands},
+            "quit": {"help": "quit the client", "func": self._shell_quit},
+            "install": {"help": "create database and tables", "func": self._install_db},
+            "test": {"help": "test database availability", "func": self._test_db},
+            "account": {"help": "create a new player account", "func": self._new_account},
         }
 
     def start(self):
@@ -57,8 +42,7 @@ class DatabaseClient(object):
     def _shell_find_command(self, user_words):
         command_name = user_words[0]
         if command_name not in self.shell_commands:
-            possible_alias = [ cmd for cmd in self.shell_commands
-                               if cmd.startswith(command_name) ]
+            possible_alias = [cmd for cmd in self.shell_commands if cmd.startswith(command_name)]
             if len(possible_alias) < 1:
                 print("Unknown command.")
                 return None
@@ -82,7 +66,7 @@ class DatabaseClient(object):
         drop_tables = input("Do you want to drop existing tables? [y/N]") == "y"
 
         try:
-            result = self._install_db_tables(drop_tables = drop_tables)
+            result = self._install_db_tables(drop_tables=drop_tables)
             if result:
                 print("Database installation OK")
         except OperationalError as exc:
@@ -90,14 +74,13 @@ class DatabaseClient(object):
             print(str(exc))
 
     @db_connection
-    def _install_db_tables(self, drop_tables = False):
+    def _install_db_tables(self, drop_tables=False):
         if drop_tables:
-            DB.drop_tables(MODELS, safe = True)
-        DB.create_tables(MODELS, safe = True)
+            DB.drop_tables(MODELS, safe=True)
+        DB.create_tables(MODELS, safe=True)
         return True
 
     def _test_db(self):
-
         @db_connection
         def get_test_value():
             return 1325  # misc value, the decorator will return None on failure

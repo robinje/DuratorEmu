@@ -1,12 +1,12 @@
-from abc import ABCMeta, abstractmethod
 import socket
 import traceback
+from abc import ABCMeta, abstractmethod
 
 from durator.common.log import LOG
 
 
-class ConnectionAutomaton(metaclass = ABCMeta):
-    """ This base class handles an active connection, handles incoming and
+class ConnectionAutomaton(metaclass=ABCMeta):
+    """This base class handles an active connection, handles incoming and
     outgoing packets, change state in consequence. Some opcodes are considered
     legal only if the automaton is in a determined state, to ensure protocol
     integrity.
@@ -21,14 +21,14 @@ class ConnectionAutomaton(metaclass = ABCMeta):
     * MAIN_ERROR_STATE is a general end state when something went wrong.
     """
 
-    LEGAL_OPS        = {}
-    UNMANAGED_OPS    = []
+    LEGAL_OPS = {}
+    UNMANAGED_OPS = []
     UNMANAGED_STATES = []
-    DEFAULT_HANDLER  = None
-    OP_HANDLERS      = {}
+    DEFAULT_HANDLER = None
+    OP_HANDLERS = {}
 
-    INIT_STATE       = None
-    END_STATES       = []
+    INIT_STATE = None
+    END_STATES = []
     MAIN_ERROR_STATE = None
 
     def __init__(self, connection):
@@ -36,7 +36,7 @@ class ConnectionAutomaton(metaclass = ABCMeta):
         self.state = self.INIT_STATE
 
     def handle_connection(self):
-        """ Call this method to let the automaton handle the connection. """
+        """Call this method to let the automaton handle the connection."""
         self._actions_before_main_loop()
 
         while self.state not in self.END_STATES:
@@ -67,25 +67,23 @@ class ConnectionAutomaton(metaclass = ABCMeta):
 
     @abstractmethod
     def _recv_packet(self):
-        """ Receive a message from the socket and return the packet or None.
+        """Receive a message from the socket and return the packet or None.
         It can be a bytes object, some class or whatever, as long as the other
         parts of the class take the typ into account. Possible socket timeouts
-        can be raised as they will be captured by the main connection loop. """
+        can be raised as they will be captured by the main connection loop."""
         pass
 
     def _try_handle_packet(self, packet):
         try:
             self._handle_packet(packet)
         except Exception as exc:
-            LOG.error("{}: uncaught exception in packet handler:".format(
-                type(self).__name__
-            ))
+            LOG.error("{}: uncaught exception in packet handler:".format(type(self).__name__))
             LOG.error(str(exc))
             traceback.print_tb(exc.__traceback__)
             self.state = self.MAIN_ERROR_STATE
 
     def _handle_packet(self, packet):
-        """ Find and call a handler for that packet.
+        """Find and call a handler for that packet.
 
         It is possible that we do not know the opcode, which is not a problem.
 
@@ -100,12 +98,8 @@ class ConnectionAutomaton(metaclass = ABCMeta):
         if opcode is None:
             return
 
-        if ( self.state not in self.UNMANAGED_STATES
-             and opcode not in self.UNMANAGED_OPS
-             and not self.opcode_is_legal(opcode) ):
-            LOG.debug("{}: received illegal opcode {} in state {}".format(
-                type(self).__name__, opcode.name, self.state.name
-            ))
+        if self.state not in self.UNMANAGED_STATES and opcode not in self.UNMANAGED_OPS and not self.opcode_is_legal(opcode):
+            LOG.debug("{}: received illegal opcode {} in state {}".format(type(self).__name__, opcode.name, self.state.name))
             return
 
         handler_class = self.OP_HANDLERS.get(opcode, self.DEFAULT_HANDLER)
@@ -113,13 +107,13 @@ class ConnectionAutomaton(metaclass = ABCMeta):
 
     @abstractmethod
     def _parse_packet(self, packet):
-        """ Return opcode and packet content. Packet has the format returned by
-        the _recv_packet method. """
+        """Return opcode and packet content. Packet has the format returned by
+        the _recv_packet method."""
         pass
 
     def _call_handler(self, handler_class, packet_data):
-        """ Call the handler and possibly send a response packet and update
-        the connection state. """
+        """Call the handler and possibly send a response packet and update
+        the connection state."""
         handler = handler_class(self, packet_data)
         next_state, response = handler.process()
 
@@ -129,27 +123,27 @@ class ConnectionAutomaton(metaclass = ABCMeta):
             self.state = next_state
 
     def opcode_is_legal(self, opcode):
-        """ Check if that opcode is legal for the current connection state. """
+        """Check if that opcode is legal for the current connection state."""
         return opcode in self.LEGAL_OPS[self.state]
 
     @abstractmethod
     def send_packet(self, data):
-        """ Prepend necessary infos to data and send it through the socket.
-        Data has the format returned by the packet handlers' response. """
+        """Prepend necessary infos to data and send it through the socket.
+        Data has the format returned by the packet handlers' response."""
         pass
 
     def _actions_before_main_loop(self):
-        """ Perform possible required actions before looping over packets. """
+        """Perform possible required actions before looping over packets."""
         pass
 
     def _actions_at_loop_begin(self):
-        """ Perform possible required actions before receiving packet. """
+        """Perform possible required actions before receiving packet."""
         pass
 
     def _actions_at_loop_end(self):
-        """ Perform possible required actions after packet handling. """
+        """Perform possible required actions after packet handling."""
         pass
 
     def _actions_after_main_loop(self):
-        """ Perform possible required actions after looping over packets. """
+        """Perform possible required actions after looping over packets."""
         pass

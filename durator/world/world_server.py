@@ -2,17 +2,18 @@ import socket
 import threading
 import time
 
+from pyshgck.conc import simple_thread
+
+from durator.common.log import LOG
 from durator.config import CONFIG
 from durator.world.game.chat.manager import ChatManager
 from durator.world.game.object.manager import ObjectManager
-from durator.world.realm import Realm, RealmId, RealmFlags, RealmPopulation
+from durator.world.realm import Realm, RealmFlags, RealmId, RealmPopulation
 from durator.world.world_connection import WorldConnection
-from pyshgck.conc import simple_thread
-from durator.common.log import LOG
 
 
-class WorldServer(object):
-    """ World server accepting connections from clients.
+class WorldServer:
+    """World server accepting connections from clients.
 
     At this point in development, it is the world server that creates and
     registers to the database the realm it hosts. In the long run though, it
@@ -42,7 +43,7 @@ class WorldServer(object):
 
     def _create_realm(self):
         realm_name = CONFIG["realm"]["name"]
-        realm_address = "{}:{}".format(self.hostname, self.port)
+        realm_address = f"{self.hostname}:{self.port}"
         realm_id = RealmId(int(CONFIG["realm"]["id"]))
         self.realm = Realm(realm_name, realm_address, realm_id)
 
@@ -57,9 +58,9 @@ class WorldServer(object):
         self._stop_listen_clients()
         LOG.info("World server stopped.")
 
-    #------------------------------
+    # ------------------------------
     # Clients connection
-    #------------------------------
+    # ------------------------------
 
     def _listen_clients(self):
         self.clients_socket = socket.socket()
@@ -73,7 +74,7 @@ class WorldServer(object):
         self.clients_socket = None
 
     def _accept_clients(self):
-        """ Regularly try to access client while looking for interrupts. """
+        """Regularly try to access client while looking for interrupts."""
         try:
             while True:
                 self._try_accept_client()
@@ -81,7 +82,7 @@ class WorldServer(object):
             LOG.info("KeyboardInterrupt received, stop accepting clients.")
 
     def _try_accept_client(self):
-        """ Accept a client connection or timeout if there aren't any. """
+        """Accept a client connection or timeout if there aren't any."""
         try:
             connection, address = self.clients_socket.accept()
             self._handle_client(connection, address)
@@ -89,7 +90,7 @@ class WorldServer(object):
             pass
 
     def _handle_client(self, connection, address):
-        """ Start the threaded WorldConnection and add it to the local list. """
+        """Start the threaded WorldConnection and add it to the local list."""
         address_string = str(address[0]) + ":" + str(address[1])
         LOG.info("Accepting client connection from " + address_string)
         world_connection = WorldConnection(self, connection)
@@ -99,16 +100,14 @@ class WorldServer(object):
 
         simple_thread(world_connection.handle_connection)
 
-    #------------------------------
+    # ------------------------------
     # Login server connection
-    #------------------------------
+    # ------------------------------
 
     def _handle_login_server_connection(self):
-        """ Update forever the realm state to the login server. """
+        """Update forever the realm state to the login server."""
         while not self.shutdown_flag.is_set():
-            state_packet = self.realm.get_state_packet(
-                RealmFlags.NORMAL, self.population
-            )
+            state_packet = self.realm.get_state_packet(RealmFlags.NORMAL, self.population)
 
             self._open_login_server_socket()
             if self.login_server_socket:
@@ -118,11 +117,10 @@ class WorldServer(object):
             time.sleep(self.LOGIN_SERVER_HEARTBEAT_RATE)
 
     def _open_login_server_socket(self):
-        """ Open the login server socket, or set it to None if it couldn't
-        connect properly. """
+        """Open the login server socket, or set it to None if it couldn't
+        connect properly."""
         self.login_server_socket = socket.socket()
-        login_server_address = ( CONFIG["login"]["realm_conn_hostname"]
-                               , int(CONFIG["login"]["realm_conn_port"]) )
+        login_server_address = (CONFIG["login"]["realm_conn_hostname"], int(CONFIG["login"]["realm_conn_port"]))
         try:
             self.login_server_socket.connect(login_server_address)
         except ConnectionError as exc:
@@ -133,31 +131,26 @@ class WorldServer(object):
         self.login_server_socket.close()
         self.login_server_socket = None
 
-    #------------------------------
+    # ------------------------------
     # Server utilities
-    #------------------------------
+    # ------------------------------
 
-    def broadcast(self, packet, state = None, guids = None):
-        """ Send a WorldPacket to all eligible WorldConnection. """
+    def broadcast(self, packet, state=None, guids=None):
+        """Send a WorldPacket to all eligible WorldConnection."""
         with self.world_connections_lock:
             for connection in self.world_connections:
-                eligible = WorldServer._get_broadcast_eligibility(
-                    connection, state, guids
-                )
+                eligible = WorldServer._get_broadcast_eligibility(connection, state, guids)
                 if eligible:
                     connection.outgoing_queue.put(packet)
 
     @staticmethod
     def _get_broadcast_eligibility(connection, state, guids):
-        """ Return whether a connection is eligible to receive a broadcast.
+        """Return whether a connection is eligible to receive a broadcast.
 
         If state is provided, send packet only WorldConnections in that state.
         If guids is provided, send packet only to players in that GUID list.
         """
-        state_condition = ( state is None
-                            or connection.state == state )
-        guid_condition = ( guids is None
-                           or ( connection.player
-                                and connection.player.guid in guids ) )
+        state_condition = state is None or connection.state == state
+        guid_condition = guids is None or (connection.player and connection.player.guid in guids)
         eligible = state_condition and guid_condition
         return eligible

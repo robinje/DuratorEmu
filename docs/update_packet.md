@@ -1,23 +1,16 @@
-Update packet
-=============
+# Update packet
 
-- uint32        count
-- uint8         bool hasTransport (?)
-- uint8         UPDATE_TYPE (should it be 2 or 3 for player spawn?)
-- uint64        guid
-- uint8         OBJECT_TYPE (4 for player)
-- MovementBlocks
-        - uint32        flags
-        - uint32        unk
-        - float[4]      position+ori
-        - (maybe stuff due to flags)
-        - float[6]      speeds (walk, run, bw, swim, swim bw, turn)
-        - (maybe stuff due to flags)
-- uint32        isPlayer ? 1 : 0
-- uint32        attack cycle
-- uint32        timer ID
-- uint64        victim guid 
-- uint8         mask block count
+- uint32 count
+- uint8 bool hasTransport (?)
+- uint8 UPDATE_TYPE (should it be 2 or 3 for player spawn?)
+- uint64 guid
+- uint8 OBJECT_TYPE (4 for player)
+- MovementBlocks - uint32 flags - uint32 unk - float[4] position+ori - (maybe stuff due to flags) - float[6] speeds (walk, run, bw, swim, swim bw, turn) - (maybe stuff due to flags)
+- uint32 isPlayer ? 1 : 0
+- uint32 attack cycle
+- uint32 timer ID
+- uint64 victim guid
+- uint8 mask block count
 - UpdateBlocks
 
 Notes from Deamon, valid for late Vanilla, maybe not for early!
@@ -31,14 +24,14 @@ GUID can be packed, it works like this:
 
 About the whole packet:
 
-> 1) Update only "update fields"
-> 2) spawn a new "world object"
-> 3) destroy object
-> 1 - is update packet type 1
-> 2 - is update packet 2 and 3
-> 3 - is type 4 and 5
-> type 1 include only "update fields", type 2 and 3 include movement information
-> block + update fields, 4 and 5 are just list of guids
+> 1. Update only "update fields"
+> 2. spawn a new "world object"
+> 3. destroy object
+>    1 - is update packet type 1
+>    2 - is update packet 2 and 3
+>    3 - is type 4 and 5
+>    type 1 include only "update fields", type 2 and 3 include movement information
+>    block + update fields, 4 and 5 are just list of guids
 
 > There are 6 types of world objects in WoW: world_object, world_unit,
 > world_player, world_gameobject, world_corpse, world_dynamicobject pktLen+1 is
@@ -46,7 +39,7 @@ About the whole packet:
 > of opcode, and then goes the actual packet payload. That's just how this
 > sandbox organizes it's memory
 
-- - -
+---
 
 ```
 ERROR #0 (0x85100000)
@@ -83,14 +76,14 @@ Address  Frame    Logical addr  Module
 77319C9F 0019FFEC 0001:00058C9F C:\WINDOWS\SYSTEM32\ntdll.dll
 ```
 
-- - -
+---
 
-03:03:36 WARNING  Unknown opcode 211
-00000000 ce 01 00 00                                     ....
-03:03:36 WARNING  Unknown opcode 1CE
-00000000 ff 01 00 00                                     ....
-03:03:36 WARNING  Unknown opcode 1FF
+03:03:36 WARNING Unknown opcode 211
+00000000 ce 01 00 00 ....
+03:03:36 WARNING Unknown opcode 1CE
+00000000 ff 01 00 00 ....
+03:03:36 WARNING Unknown opcode 1FF
 00000000 56 00 00 00 e4 1f 00 00 00 00 00 00 00 00 00 00 V...............
-03:03:36 WARNING  Unknown opcode 56
-00000000 56 00 00 00 5f 24 00 00 00 00 00 00 00 00 00 00 V..._$..........
-03:03:36 WARNING  Unknown opcode 56
+03:03:36 WARNING Unknown opcode 56
+00000000 56 00 00 00 5f 24 00 00 00 00 00 00 00 00 00 00 V...\_$..........
+03:03:36 WARNING Unknown opcode 56
