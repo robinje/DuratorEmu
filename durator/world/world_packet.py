@@ -1,12 +1,11 @@
 import traceback
 from struct import Struct
 
-from pyshgck.format import dump_data
-
 from durator.common.crypto.session_cipher import SessionCipher
 from durator.common.log import LOG
 from durator.config import DEBUG
 from durator.world.opcodes import OpCode
+from lib.utilities import get_data_dump as dump_data
 
 
 class WorldPacket:

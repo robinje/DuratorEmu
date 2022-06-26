@@ -25,7 +25,6 @@ Dependencies:
 - MySQL
 - Peewee, the Python ORM used
 - A Python MySQL driver
-- PyShgck
 
 ### Python 3.8+
 
@@ -59,6 +58,7 @@ pip install peewee
 ```bash
 pip install pymysql
 ```
+
 ## Configuration
 
 Configure the database and create an account with the database client

@@ -1,5 +1,3 @@
-from pyshgck.format import dump_data
-
 from durator.auth.constants import LoginOpCode
 from durator.auth.login_challenge import LoginChallenge
 from durator.auth.login_connection_state import LoginConnectionState
@@ -11,6 +9,7 @@ from durator.auth.srp import Srp
 from durator.common.log import LOG
 from durator.common.networking.connection_automaton import ConnectionAutomaton
 from durator.config import DEBUG
+from lib.utilities import get_data_dump as dump_data
 
 
 class LoginConnection(ConnectionAutomaton):
