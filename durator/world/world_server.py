@@ -2,14 +2,13 @@ import socket
 import threading
 import time
 
-from pyshgck.conc import simple_thread
-
 from durator.common.log import LOG
 from durator.config import CONFIG
 from durator.world.game.chat.manager import ChatManager
 from durator.world.game.object.manager import ObjectManager
 from durator.world.realm import Realm, RealmFlags, RealmId, RealmPopulation
 from durator.world.world_connection import WorldConnection
+from lib.utilities import simple_thread
 
 
 class WorldServer:

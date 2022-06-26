@@ -2,13 +2,12 @@ import socket
 import threading
 import time
 
-from pyshgck.conc import simple_thread
-
 from durator.auth.login_connection import LoginConnection
 from durator.auth.realm_connection import RealmConnection
 from durator.common.account.managers import AccountSessionManager
 from durator.common.log import LOG
 from durator.config import CONFIG
+from lib.utilities import simple_thread
 
 
 class LoginServer:

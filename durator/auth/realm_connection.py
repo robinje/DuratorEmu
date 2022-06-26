@@ -1,7 +1,7 @@
 import io
 import time
 
-from pyshgck.bin import read_cstring
+from lib.utilities import read_cstring
 
 
 class RealmConnection:

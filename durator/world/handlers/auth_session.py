@@ -2,8 +2,6 @@ import io
 from enum import Enum
 from struct import Struct
 
-from pyshgck.bin import read_cstring, read_struct
-
 from durator.common.account.managers import AccountSessionManager
 from durator.common.crypto.session_cipher import SessionCipher
 from durator.common.crypto.sha1 import sha1
@@ -13,6 +11,7 @@ from durator.db.database import db_connection
 from durator.world.opcodes import OpCode
 from durator.world.world_connection_state import WorldConnectionState
 from durator.world.world_packet import WorldPacket
+from lib.utilities import read_cstring, read_struct
 
 
 class AuthSessionResponseCode(Enum):

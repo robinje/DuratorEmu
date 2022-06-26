@@ -1,9 +1,8 @@
 import io
 from struct import Struct
 
-from pyshgck.bin import read_cstring
-
 from durator.world.game.chat.notification import Notification, NotificationType
+from lib.utilities import read_cstring
 
 
 class JoinChannelHandler:

@@ -1,7 +1,7 @@
 import math
 from struct import Struct
 
-from pyshgck.bin import read_struct
+from lib.utilities import read_struct
 
 
 class Position:
