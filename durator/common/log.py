@@ -1,3 +1,7 @@
-from pyshgck.log import get_logger
+import logging
 
-LOG = get_logger(name="durator")
+logger = logging.getLogger("durator")
+
+logger.setLevel(logging.DEBUG)
+
+LOG = logger

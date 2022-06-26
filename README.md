@@ -17,19 +17,17 @@ readers-writers problems and stuff, and these notes are almost unreadable.
 
 Use it to have fun exploring with a few friends, that's all.
 
-Demo: https://youtu.be/uucpgeK3ILk
-
 ## Installation
 
 Dependencies:
 
-- Python 3.4+
+- Python 3.8+
 - MySQL
 - Peewee, the Python ORM used
 - A Python MySQL driver
 - PyShgck
 
-### Python 3.4+
+### Python 3.8+
 
 Get that from their website.
 
@@ -58,20 +56,9 @@ pip install peewee
 
 ### Python MySQL driver
 
-You only need one of them, preferably PyMySQL because that's the one I use, but
-both are available in PyPI:
-
 ```bash
 pip install pymysql
-# OR
-pip install mysqldb
 ```
-
-### PyShgck
-
-Grab this [tag](https://gitlab.com/Shgck/py-shgck-tools/tags/v1.1.0) and install
-it with the setup batch file.
-
 ## Configuration
 
 Configure the database and create an account with the database client
