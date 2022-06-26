@@ -1,15 +1,15 @@
-from peewee import Model, IntegerField, ForeignKeyField
+from peewee import ForeignKeyField, IntegerField, Model
 
-from durator.world.game.character.character_data import CharacterData
 from durator.db.database import DB
+from durator.world.game.character.character_data import CharacterData
 
 
 class Skill(Model):
 
-    character      = ForeignKeyField(CharacterData)
-    ident          = IntegerField()
-    level          = IntegerField(default = 0)
-    stat_level     = IntegerField(default = 0)
+    character = ForeignKeyField(CharacterData)
+    ident = IntegerField()
+    level = IntegerField(default=0)
+    stat_level = IntegerField(default=0)
 
-    class Meta(object):
+    class Meta:
         database = DB

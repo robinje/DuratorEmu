@@ -1,13 +1,13 @@
-from struct import Struct
 import time
+from struct import Struct
 
-from durator.world.game.spell.constants import SpellId, SPELL_VALUES
+from durator.world.game.spell.constants import SPELL_VALUES, SpellId
 from durator.world.opcodes import OpCode
 from durator.world.world_packet import WorldPacket
 
 
 class InitialSpellsPacket(WorldPacket):
-    """ Packet in charge to send spell data at login. """
+    """Packet in charge to send spell data at login."""
 
     # uint8     unk
     # uint16    num_spells
@@ -15,7 +15,7 @@ class InitialSpellsPacket(WorldPacket):
 
     # uint16    spell_id
     # uint16    unk
-    SPELL_BIN  = Struct("<2H")
+    SPELL_BIN = Struct("<2H")
 
     # uint16    spell_id
     # uint16    item_id
@@ -30,7 +30,7 @@ class InitialSpellsPacket(WorldPacket):
         self._prepare_packet()
 
     def _prepare_packet(self):
-        """ Compute the bytes of the WorldPacket. """
+        """Compute the bytes of the WorldPacket."""
         data = b""
 
         with self.player.lock:

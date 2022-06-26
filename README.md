@@ -1,5 +1,4 @@
-DuratorEmu
-==========
+# DuratorEmu
 
 This is a World of Warcraft 1.1.2.4125 tiny server emulator, written in Python,
 which tries to remain small, clean and understandable. The goal is to handle
@@ -20,10 +19,7 @@ Use it to have fun exploring with a few friends, that's all.
 
 Demo: https://youtu.be/uucpgeK3ILk
 
-
-
-Installation
-------------
+## Installation
 
 Dependencies:
 
@@ -47,7 +43,7 @@ Quick MySQL database setup:
 
 - CREATE DATABASE durator;
 - CREATE USER 'durator'@'%' IDENTIFIED BY 'durator'
-- GRANT ALL PRIVILEGES ON durator.* TO 'durator'@'%' IDENTIFIED BY 'durator';
+- GRANT ALL PRIVILEGES ON durator.\* TO 'durator'@'%' IDENTIFIED BY 'durator';
 
 Feel free to use other credentials (but update the database code configuration),
 and to narrow the hostname to something more private than a full wildcard.
@@ -56,7 +52,7 @@ and to narrow the hostname to something more private than a full wildcard.
 
 Available in PyPI:
 
-``` bash
+```bash
 pip install peewee
 ```
 
@@ -65,7 +61,7 @@ pip install peewee
 You only need one of them, preferably PyMySQL because that's the one I use, but
 both are available in PyPI:
 
-``` bash
+```bash
 pip install pymysql
 # OR
 pip install mysqldb
@@ -76,14 +72,11 @@ pip install mysqldb
 Grab this [tag](https://gitlab.com/Shgck/py-shgck-tools/tags/v1.1.0) and install
 it with the setup batch file.
 
-
-
-Configuration
--------------
+## Configuration
 
 Configure the database and create an account with the database client
 
-``` bash
+```bash
 cd DuratorEmu
 python3 -m durator.main db
 # use the commands 'install' and 'account'
@@ -92,15 +85,12 @@ python3 -m durator.main db
 Then just use `start.bat`, or manually start the login and world servers in
 different consoles:
 
-``` bash
+```bash
 python3 -m durator.main login
 python3 -m durator.main world
 ```
 
-
-
-Documentation
--------------
+## Documentation
 
 Some related projects and documentation that I used, first for Vanilla (mostly
 1.12):

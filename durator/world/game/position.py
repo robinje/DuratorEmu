@@ -4,11 +4,11 @@ from struct import Struct
 from pyshgck.bin import read_struct
 
 
-class Position(object):
+class Position:
 
     BIN = Struct("<4f")
 
-    def __init__(self, x = 0.0, y = 0.0, z = 0.0, o = 0.0):
+    def __init__(self, x=0.0, y=0.0, z=0.0, o=0.0):
         self.x = x
         self.y = y
         self.z = z
@@ -28,6 +28,4 @@ class Position(object):
         return self.BIN.pack(self.x, self.y, self.z, self.o)
 
     def distance_from(self, other_pos):
-        return math.sqrt( (self.x - other_pos.x)**2 +
-                          (self.y - other_pos.y)**2 +
-                          (self.z - other_pos.z)**2 )
+        return math.sqrt((self.x - other_pos.x) ** 2 + (self.y - other_pos.y) ** 2 + (self.z - other_pos.z) ** 2)

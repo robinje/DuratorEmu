@@ -1,28 +1,29 @@
-from struct import Struct
 import traceback
+from struct import Struct
+
+from pyshgck.format import dump_data
 
 from durator.common.crypto.session_cipher import SessionCipher
 from durator.common.log import LOG
 from durator.config import DEBUG
 from durator.world.opcodes import OpCode
-from pyshgck.format import dump_data
 
 
-class WorldPacket(object):
-    """ Describe a world server packet. The opcode can be None if unknown. """
+class WorldPacket:
+    """Describe a world server packet. The opcode can be None if unknown."""
 
-    OUTGOING_SIZE_BIN   = Struct(">H")
+    OUTGOING_SIZE_BIN = Struct(">H")
     OUTGOING_OPCODE_BIN = Struct("<H")
 
-    def __init__(self, opcode = None, data = b""):
+    def __init__(self, opcode=None, data=b""):
         self.opcode = opcode
         self.data = data
 
-    def to_socket(self, session_cipher = None):
-        """ Return ready-to-send bytes, possibly encrypted, from the packet. """
+    def to_socket(self, session_cipher=None):
+        """Return ready-to-send bytes, possibly encrypted, from the packet."""
         if DEBUG:
             print(">>>", self.opcode)
-            print(dump_data(self.data), end = "")
+            print(dump_data(self.data), end="")
 
         opcode_bytes = self.OUTGOING_OPCODE_BIN.pack(self.opcode.value)
         packet = opcode_bytes + self.data
@@ -35,8 +36,8 @@ class WorldPacket(object):
         return packet
 
 
-class WorldPacketReceiver(object):
-    """ Helper class that can get a complete WorldPacket from a connection. """
+class WorldPacketReceiver:
+    """Helper class that can get a complete WorldPacket from a connection."""
 
     def __init__(self, socket):
         self.socket = socket
@@ -49,7 +50,7 @@ class WorldPacketReceiver(object):
         self.content = b""
 
     def get_next_packet(self):
-        """ Return a received WorldPacket.
+        """Return a received WorldPacket.
 
         It captures when a connection get closed (recv returns None), and return
         None as well, but it doesn't capture other network exceptions like
@@ -64,14 +65,14 @@ class WorldPacketReceiver(object):
         if DEBUG:
             if self.opcode is not None:
                 print("<<<", self.opcode)
-            print(dump_data(self.content), end = "")
+            print(dump_data(self.content), end="")
 
         packet = WorldPacket(self.opcode, self.content)
         self.clean()
         return packet
 
     def _get_header(self):
-        """ Ensure we get all the (possibly decrypted) data from the header. """
+        """Ensure we get all the (possibly decrypted) data from the header."""
         while len(self.packet_buf) < SessionCipher.DECRYPT_HEADER_SIZE:
             self._get_more_data()
 
@@ -81,7 +82,7 @@ class WorldPacketReceiver(object):
         self._slice_packet_size()
 
     def _slice_packet_size(self):
-        """ Cut the packet size from packet_buf. """
+        """Cut the packet size from packet_buf."""
         packet_size = int.from_bytes(self.packet_buf[:2], "big")
         self.packet_size = packet_size
         self.packet_buf = self.packet_buf[2:]
@@ -90,13 +91,13 @@ class WorldPacketReceiver(object):
         while len(self.packet_buf) < self.packet_size:
             self._get_more_data()
 
-        self.content = self.packet_buf[:self.packet_size]
-        self.packet_buf = self.packet_buf[self.packet_size:]
+        self.content = self.packet_buf[: self.packet_size]
+        self.packet_buf = self.packet_buf[self.packet_size :]
 
         self._slice_packet_opcode()
 
     def _slice_packet_opcode(self):
-        """ Cut the packet opcode from content. """
+        """Cut the packet opcode from content."""
         opcode_bytes = self.content[:4]
         opcode_value = int.from_bytes(opcode_bytes, "little")
         self.content = self.content[4:]
@@ -104,7 +105,7 @@ class WorldPacketReceiver(object):
         try:
             self.opcode = OpCode(opcode_value)
         except ValueError:
-            LOG.warning("Unknown opcode {:X}".format(opcode_value))
+            LOG.warning(f"Unknown opcode {opcode_value:X}")
 
     def _get_more_data(self):
         some_data = None

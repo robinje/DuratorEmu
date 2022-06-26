@@ -3,14 +3,14 @@ from struct import Struct
 from durator.auth.constants import LoginOpCode
 
 
-class RealmlistRequest(object):
-    """ Handle a realm list request (opcode 0x10). """
+class RealmlistRequest:
+    """Handle a realm list request (opcode 0x10)."""
 
     MIN_RESPONSE_SIZE = 7
 
     RESPONSE_HEADER_BIN = Struct("<BHIB")
     RESPONSE_FOOTER_BIN = Struct("<H")
-    REALM_PACKET_FMT    = "<IB{name_len}s{addr_len}sf3B"
+    REALM_PACKET_FMT = "<IB{name_len}s{addr_len}sf3B"
 
     def __init__(self, connection, packet):
         self.conn = connection
@@ -31,13 +31,6 @@ class RealmlistRequest(object):
 
     def _get_realmlist_packet(self, realminfos, num_realms):
         full_packet_size = self.MIN_RESPONSE_SIZE + len(realminfos)
-        header = self.RESPONSE_HEADER_BIN.pack(
-            LoginOpCode.REALMLIST.value,
-            full_packet_size,
-            0,  # unknown
-            num_realms
-        )
-        footer = self.RESPONSE_FOOTER_BIN.pack(
-            0  # unknown
-        )
+        header = self.RESPONSE_HEADER_BIN.pack(LoginOpCode.REALMLIST.value, full_packet_size, 0, num_realms)  # unknown
+        footer = self.RESPONSE_FOOTER_BIN.pack(0)  # unknown
         return header + realminfos + footer

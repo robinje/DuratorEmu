@@ -5,10 +5,10 @@ from durator.auth.login_connection_state import LoginConnectionState
 from durator.common.log import LOG
 
 
-class LoginProof(object):
-    """ Process a proof request and answer with the server proof. """
+class LoginProof:
+    """Process a proof request and answer with the server proof."""
 
-    PROOF_BIN         = Struct("<32s20s20sB")
+    PROOF_BIN = Struct("<32s20s20sB")
     RESPONSE_SUCC_BIN = Struct("<2B20sI")
     RESPONSE_FAIL_BIN = Struct("<2B")
 
@@ -50,16 +50,10 @@ class LoginProof(object):
 
     def _get_success_response(self):
         response = self.RESPONSE_SUCC_BIN.pack(
-            LoginOpCode.LOGIN_PROOF.value,
-            LoginResult.SUCCESS.value,
-            self.conn.srp.server_proof,
-            0
+            LoginOpCode.LOGIN_PROOF.value, LoginResult.SUCCESS.value, self.conn.srp.server_proof, 0
         )
         return response
 
     def _get_failure_response(self):
-        response = self.RESPONSE_FAIL_BIN.pack(
-            LoginOpCode.LOGIN_PROOF.value,
-            LoginResult.FAIL_1.value
-        )
+        response = self.RESPONSE_FAIL_BIN.pack(LoginOpCode.LOGIN_PROOF.value, LoginResult.FAIL_1.value)
         return response

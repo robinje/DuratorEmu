@@ -1,27 +1,27 @@
-from enum import Enum
 import io
+from enum import Enum
 from struct import Struct
 
+from pyshgck.bin import read_cstring, read_struct
+
+from durator.common.log import LOG
+from durator.world.game.character.constants import CharacterClass, CharacterGender, CharacterRace
 from durator.world.game.character.manager import CharacterManager
-from durator.world.game.character.constants import (
-    CharacterRace, CharacterClass, CharacterGender )
 from durator.world.opcodes import OpCode
 from durator.world.world_packet import WorldPacket
-from pyshgck.bin import read_cstring, read_struct
-from durator.common.log import LOG
 
 
 class CharCreateResponseCode(Enum):
 
-    SUCCESS             = 0x2D
-    ERROR               = 0x2E
-    FAILED              = 0x2F
-    NAME_IN_USE         = 0x30
-    SERVER_LIMIT        = 0x33
-    ACCOUNT_LIMIT       = 0x34
+    SUCCESS = 0x2D
+    ERROR = 0x2E
+    FAILED = 0x2F
+    NAME_IN_USE = 0x30
+    SERVER_LIMIT = 0x33
+    ACCOUNT_LIMIT = 0x34
 
 
-class CharCreateHandler(object):
+class CharCreateHandler:
 
     PACKET_CHAR_BIN = Struct("<9B")
     RESPONSE_BIN = Struct("<B")
@@ -51,8 +51,8 @@ class CharCreateHandler(object):
                 "face": self.char_features[1],
                 "hair_style": self.char_features[2],
                 "hair_color": self.char_features[3],
-                "facial_hair": self.char_features[4]
-            }
+                "facial_hair": self.char_features[4],
+            },
         }
         manager_code = CharacterManager.create_char(char_values)
 
@@ -76,7 +76,7 @@ class CharCreateHandler(object):
             0: CharCreateResponseCode.SUCCESS,
             1: CharCreateResponseCode.FAILED,
             2: CharCreateResponseCode.NAME_IN_USE,
-            3: CharCreateResponseCode.ERROR
+            3: CharCreateResponseCode.ERROR,
         }.get(manager_code, 1)
         LOG.debug("Character creation status: " + str(response_code.name))
 

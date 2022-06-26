@@ -6,7 +6,7 @@ from durator.common.account.account_data import AccountDataType
 from durator.common.account.managers import AccountDataManager
 
 
-class UpdateAccountDataHandler(object):
+class UpdateAccountDataHandler:
 
     HEADER_BIN = Struct("<2I")
 
@@ -33,6 +33,4 @@ class UpdateAccountDataHandler(object):
         self.zlib_data = content
 
     def _update_account_data(self):
-        AccountDataManager.set_account_data(
-            self.conn.account, self.data_type, self.zlib_data
-        )
+        AccountDataManager.set_account_data(self.conn.account, self.data_type, self.zlib_data)

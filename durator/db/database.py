@@ -2,19 +2,18 @@ import threading
 
 from peewee import MySQLDatabase, OperationalError
 
-from durator.config import CONFIG, DEBUG
 from durator.common.log import LOG
-
+from durator.config import CONFIG, DEBUG
 
 _DB_NAME = CONFIG["db"]["db_name"]
 _DB_USER = CONFIG["db"]["db_user"]
 _DB_PASS = CONFIG["db"]["db_pass"]
 
-DB = MySQLDatabase(_DB_NAME, user = _DB_USER, password = _DB_PASS)
+DB = MySQLDatabase(_DB_NAME, user=_DB_USER, password=_DB_PASS)
 
 
-class _DbConnector(object):
-    """ Internal component that handle threaded access to the database.
+class _DbConnector:
+    """Internal component that handle threaded access to the database.
 
     The db_connection decorator needs to keep count of the number of functions
     currently accessing the database, to avoid closing the connection in a
@@ -33,7 +32,7 @@ class _DbConnector(object):
         self.num_connections_lock = threading.Lock()
 
     def connect(self):
-        """ Connect to the database, return True on success. """
+        """Connect to the database, return True on success."""
         with self.num_connections_lock:
             assert self.num_connections >= 0
             self.num_connections += 1
@@ -49,7 +48,7 @@ class _DbConnector(object):
         return True
 
     def close(self):
-        """ Close the database connection, return True on success. """
+        """Close the database connection, return True on success."""
         with self.num_connections_lock:
             self.num_connections -= 1
             if self.num_connections == 0:
@@ -64,7 +63,7 @@ class _DbConnector(object):
 
     @staticmethod
     def log_error(operation, exception):
-        LOG.error("A problem occured during operation '{}'".format(operation))
+        LOG.error(f"A problem occured during operation '{operation}'")
         LOG.error("Is the MySQL server started?")
         LOG.error("Is the Durator user created? (see database creds)")
         LOG.error("Does it have full access to the durator database?")
@@ -75,7 +74,7 @@ _DB_CONNECTOR = _DbConnector(DB)
 
 
 def db_connection(func):
-    """ Decorator that connects to the db with correct credentials and properly
+    """Decorator that connects to the db with correct credentials and properly
     closes the connection after return.
 
     If a connection couldn't be made, it returns None and does not call the

@@ -1,21 +1,21 @@
 from enum import Enum
 from struct import Struct
 
+from durator.common.log import LOG
 from durator.world.game.character.manager import CharacterManager
 from durator.world.opcodes import OpCode
 from durator.world.world_packet import WorldPacket
-from durator.common.log import LOG
 
 
 class CharDeleteResponseCode(Enum):
 
     SUCCESS = 0x38
-    FAILED  = 0x39
+    FAILED = 0x39
 
 
-class CharDeleteHandler(object):
+class CharDeleteHandler:
 
-    PACKET_BIN   = Struct("<Q")
+    PACKET_BIN = Struct("<Q")
     RESPONSE_BIN = Struct("<B")
 
     def __init__(self, connection, packet):
@@ -29,10 +29,7 @@ class CharDeleteHandler(object):
         return None, packet
 
     def _get_response_packet(self, manager_code):
-        response_code = {
-            0: CharDeleteResponseCode.SUCCESS,
-            1: CharDeleteResponseCode.FAILED
-        }.get(manager_code, 1)
+        response_code = {0: CharDeleteResponseCode.SUCCESS, 1: CharDeleteResponseCode.FAILED}.get(manager_code, 1)
         LOG.debug("Character deletion status: " + str(response_code.name))
 
         response_data = self.RESPONSE_BIN.pack(response_code.value)

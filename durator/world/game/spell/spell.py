@@ -1,13 +1,13 @@
-from peewee import Model, IntegerField, ForeignKeyField
+from peewee import ForeignKeyField, IntegerField, Model
 
-from durator.world.game.character.character_data import CharacterData
 from durator.db.database import DB
+from durator.world.game.character.character_data import CharacterData
 
 
 class Spell(Model):
 
-    character      = ForeignKeyField(CharacterData)
-    ident          = IntegerField()
+    character = ForeignKeyField(CharacterData)
+    ident = IntegerField()
 
-    class Meta(object):
+    class Meta:
         database = DB

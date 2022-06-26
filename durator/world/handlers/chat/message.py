@@ -4,10 +4,10 @@ from durator.world.game.chat.message import ChatMessageType, ClientChatMessage
 from durator.world.game.chat.notification import Notification, NotificationType
 
 
-class MessageHandler(object):
-    """ Handle basic CMSG_MESSAGECHAT packets. """
+class MessageHandler:
+    """Handle basic CMSG_MESSAGECHAT packets."""
 
-    PACKET_PART1_BIN  = Struct("<2I")
+    PACKET_PART1_BIN = Struct("<2I")
 
     def __init__(self, connection, packet):
         self.conn = connection
@@ -37,7 +37,7 @@ class MessageHandler(object):
             1: NotificationType.NOT_MEMBER,
             2: NotificationType.INVALID_NAME,
             3: None,
-            4: NotificationType.MUTED
+            4: NotificationType.MUTED,
         }[result_code]
 
         if notif_type is None:

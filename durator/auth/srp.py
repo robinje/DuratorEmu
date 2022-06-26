@@ -9,8 +9,8 @@ import os
 from durator.common.crypto.sha1 import sha1, sha1_interleave
 
 
-class Srp(object):
-    """ SRP login manager
+class Srp:
+    """SRP login manager
 
     Attributes:
         priv_ephemeral: big private integer
@@ -20,9 +20,8 @@ class Srp(object):
         server_proof: 20 bytes proof hash
     """
 
-    MODULUS    = \
-        0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
-    GENERATOR  = 7
+    MODULUS = 0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
+    GENERATOR = 7
     MULTIPLIER = 3
 
     def __init__(self):
@@ -69,14 +68,14 @@ class Srp(object):
         gen_hash = sha1(gen_bytes)
         xor_hash = b""
         for m_byte, g_byte in zip(modulus_hash, gen_hash):
-            xor_hash += int.to_bytes(m_byte^g_byte, 1, "little")
+            xor_hash += int.to_bytes(m_byte ^ g_byte, 1, "little")
 
         client_eph = int.to_bytes(client_ephemeral, 32, "little")
         server_eph = int.to_bytes(self.server_ephemeral, 32, "little")
 
-        to_hash = ( xor_hash + sha1(account.name.encode("ascii")) +
-                    account.srp_salt_as_bytes +
-                    client_eph + server_eph + self.session_key )
+        to_hash = (
+            xor_hash + sha1(account.name.encode("ascii")) + account.srp_salt_as_bytes + client_eph + server_eph + self.session_key
+        )
         self.client_proof = sha1(to_hash)
 
     def generate_server_proof(self, client_ephemeral):
@@ -88,7 +87,7 @@ class Srp(object):
 
     @staticmethod
     def generate_account_srp_data(account, password):
-        """ Generate a salt and a verifier for that account and that pass. """
+        """Generate a salt and a verifier for that account and that pass."""
         ident = account.name.upper()
         password = password.upper()
         salt = os.urandom(32)
@@ -98,7 +97,7 @@ class Srp(object):
 
     @staticmethod
     def _generate_verifier(ident, password, salt):
-        """ Generate an SRP verifier from these log informations. """
+        """Generate an SRP verifier from these log informations."""
         logs = ident + ":" + password
         logs_hash = sha1(logs.encode("ascii"))
         x_content = salt + logs_hash

@@ -7,10 +7,10 @@ from durator.common.crypto.sha1 import sha1
 from durator.common.log import LOG
 
 
-class ReconProof(object):
-    """ Handle a client's reconnection proof request (opcode 0x3). """
+class ReconProof:
+    """Handle a client's reconnection proof request (opcode 0x3)."""
 
-    CONTENT_BIN       = Struct("<16s20s20sB")
+    CONTENT_BIN = Struct("<16s20s20sB")
     RESPONSE_SUCC_BIN = Struct("<2B")
     RESPONSE_FAIL_BIN = Struct("<2B")
 
@@ -52,20 +52,13 @@ class ReconProof(object):
             return
 
         challenge = self.conn.recon_challenge
-        to_hash = ( account_name.encode("ascii") + self.proof_data +
-                    challenge + session.session_key_as_bytes )
+        to_hash = account_name.encode("ascii") + self.proof_data + challenge + session.session_key_as_bytes
         self.local_proof = sha1(to_hash)
 
     def _get_success_response(self):
-        response = self.RESPONSE_SUCC_BIN.pack(
-            LoginOpCode.RECON_PROOF.value,
-            LoginResult.SUCCESS.value
-        )
+        response = self.RESPONSE_SUCC_BIN.pack(LoginOpCode.RECON_PROOF.value, LoginResult.SUCCESS.value)
         return response
 
     def _get_failure_response(self):
-        response = self.RESPONSE_FAIL_BIN.pack(
-            LoginOpCode.RECON_PROOF.value,
-            LoginResult.FAIL_1.value
-        )
+        response = self.RESPONSE_FAIL_BIN.pack(LoginOpCode.RECON_PROOF.value, LoginResult.FAIL_1.value)
         return response

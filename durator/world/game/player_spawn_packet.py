@@ -1,10 +1,7 @@
-from durator.world.game.object.object_fields import (
-    ObjectField, UnitField, PlayerField )
-from durator.world.game.object.type.player import Player
-from durator.world.game.update_object_packet import (
-    UpdateType, UpdateObjectPacket )
 from durator.common.log import LOG
-
+from durator.world.game.object.object_fields import ObjectField, PlayerField, UnitField
+from durator.world.game.object.type.player import Player
+from durator.world.game.update_object_packet import UpdateObjectPacket, UpdateType
 
 # These values are enough to let the client make the player show in world.
 # There may be a lot of superfluous values but well...
@@ -73,14 +70,14 @@ PLAYER_SPAWN_FIELDS = [
     PlayerField.PARRY_PERCENTAGE,
     PlayerField.CRIT_PERCENTAGE,
     PlayerField.REST_STATE_EXP,
-    PlayerField.COINAGE
+    PlayerField.COINAGE,
 ]
 
 
 class PlayerSpawnPacket(UpdateObjectPacket):
-    """ This specific UpdateObjectPacket is used to let a player spawn.
+    """This specific UpdateObjectPacket is used to let a player spawn.
     Basically a wrapper around CREATE_OBJECT UpdateObjectPacket for Players that
-    add some required fields. """
+    add some required fields."""
 
     def __init__(self, update_infos):
         super().__init__(UpdateType.CREATE_OBJECT, update_infos)
@@ -102,7 +99,7 @@ class PlayerSpawnPacket(UpdateObjectPacket):
     def _add_int_fields(self, player):
         start_field = PlayerField.SKILL_INFO_1_ID.value
         for index in range(Player.NUM_SKILLS):
-            field_value = start_field + index*3
+            field_value = start_field + index * 3
 
             ident = player.get(field_value)
             if ident is None or ident == 0:

@@ -1,8 +1,7 @@
 from durator.world.game.chat.notification import Notification, NotificationType
 
 
-class LeaveChannelHandler(object):
-
+class LeaveChannelHandler:
     def __init__(self, connection, packet):
         self.conn = connection
         self.packet = packet
@@ -20,17 +19,13 @@ class LeaveChannelHandler(object):
         self.channel_name = packet[:-1].decode("utf8")
 
     def _try_leave_channel(self):
-        leave_result_code = self.conn.server.chat_manager.leave_channel(
-            self.conn.player, self.channel_name
-        )
+        leave_result_code = self.conn.server.chat_manager.leave_channel(self.conn.player, self.channel_name)
         return leave_result_code
 
     def _get_response_packet(self, leave_result_code):
-        notif_type = {
-            0: NotificationType.YOU_LEFT,
-            1: NotificationType.NOT_MEMBER,
-            2: NotificationType.INVALID_NAME
-        }[leave_result_code]
+        notif_type = {0: NotificationType.YOU_LEFT, 1: NotificationType.NOT_MEMBER, 2: NotificationType.INVALID_NAME}[
+            leave_result_code
+        ]
 
         channel = self.conn.server.chat_manager.get_channel(self.channel_name)
 

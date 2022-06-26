@@ -1,8 +1,8 @@
 import binascii
-from enum import Enum
 import zlib
+from enum import Enum
 
-from peewee import Model, CharField, ForeignKeyField, IntegerField, TextField
+from peewee import CharField, ForeignKeyField, IntegerField, Model, TextField
 
 from durator.common.account.account import Account
 from durator.db.database import DB
@@ -10,18 +10,18 @@ from durator.db.database import DB
 
 class AccountDataType(Enum):
 
-    CONFIG   = 0
+    CONFIG = 0
     BINDINGS = 1
-    MACROS   = 2
-    LAYOUT   = 3
-    CHAT     = 4
+    MACROS = 2
+    LAYOUT = 3
+    CHAT = 4
 
     def as_flag(self):
         return 1 << self.value
 
     @staticmethod
     def full_mask():
-        return sum([data_type.as_flag() for data_type in AccountDataType])
+        return sum(data_type.as_flag() for data_type in AccountDataType)
 
 
 NUM_ACCOUNT_DATA_TYPES = len(AccountDataType)
@@ -29,18 +29,19 @@ NUM_ACCOUNT_DATA_TYPES = len(AccountDataType)
 
 class AccountData(Model):
 
-    account           = ForeignKeyField(Account)
-    data_type         = IntegerField()
+    account = ForeignKeyField(Account)
+    data_type = IntegerField()
     decompressed_size = IntegerField()
-    content           = TextField()
-    md5               = CharField(max_length = 16*2)
+    content = TextField()
+    md5 = CharField(max_length=16 * 2)
 
-    class Meta(object):
+    class Meta:
         database = DB
 
     @property
     def content_as_zlib_data(self):
         return zlib.compress(self.content.encode("utf8"))
+
     @content_as_zlib_data.setter
     def content_as_zlib_data(self, value_bytes):
         try:
@@ -51,6 +52,7 @@ class AccountData(Model):
     @property
     def md5_as_bytes(self):
         return binascii.a2b_hex(self.md5.encode("ascii"))
+
     @md5_as_bytes.setter
     def md5_as_bytes(self, value_bytes):
         self.md5 = binascii.b2a_hex(value_bytes).decode("ascii")
